@@ -1,0 +1,54 @@
+
+This more or less works.  It is, as of 17 Apr 2013 up at https://xpm.edenwired.com/ , so there's not really a point to installing this yourself if it is still up there.  You can write me at dan@edenwired.com if you have some ideas about different forms for the data that comes back.
+
+
+
+1)
+
+primecoind must be running.
+
+it must be running with the txindex=1 option in /.primecoin/primecoin.conf
+
+blockOut.sh should take the block count and feed it into block2JSON.sh
+
+#primecoin.conf
+rpcpassword=areallylongpassword
+gen=0
+txindex=1
+blocknotify=/var/www/html/xpm-bal/blockOut.sh
+rpcport=8500
+
+2)
+jq must be installed.  included is the file jq, for 64 bit linux systems
+
+#install jq
+#$ wget http://stedolan.github.io/jq/download/linux32/jq (32-bit system)
+#$ wget http://stedolan.github.io/jq/download/linux64/jq (64-bit system)
+#$ chmod +x ./jq
+
+
+3)
+database
+
+CREATE TABLE `blocks` (                                                                                                    
+  `id` bigint(20) unsigned DEFAULT NULL,
+  `hash` char(64) DEFAULT NULL,
+  `confirm` int(10) unsigned DEFAULT NULL,
+  `time` bigint(20) unsigned DEFAULT NULL,
+  `prev` varchar(500) DEFAULT NULL,
+  `next` varchar(500) DEFAULT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY `id` (`id`),
+  KEY `id_2` (`id`,`confirm`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `receipts` (
+  `block_id` bigint(20) unsigned DEFAULT NULL,
+  `txid` char(64) DEFAULT NULL,
+  `hex` varchar(130) DEFAULT NULL,
+  `address` char(34) DEFAULT NULL,
+  `value` float(40,20) DEFAULT NULL,
+  UNIQUE KEY `txid` (`txid`,`hex`),
+  KEY `block_id` (`block_id`),
+  KEY `address` (`address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
